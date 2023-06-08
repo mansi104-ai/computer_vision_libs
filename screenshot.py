@@ -1,44 +1,41 @@
 import cv2
-import pyautogui
-import pygetwindow as gw
 import os
-import numpy as np
-
-# Set the title of the window you want to capture
-window_title = "My Window"
 
 # Set the path to the folder where you want to save the screenshot
-folder_path = "COMPUTER_VISION_LIBS"
+folder_path = "C:\Users\mansi\machine_learning\computer_vision_libs\computer_vision_libs\"
+# Open the first available camera
+cap = cv2.VideoCapture(0)
 
-# Find the coordinates of the top-left corner and the width and height of the window
-window_info = gw.getWindowsWithTitle(window_title)
-x, y, width, height = window_info.left, window_info.top, window_info.width, window_info.height
+# Check if the camera opened successfully
+if not cap.isOpened():
+    print("Error opening video capture.")
+    exit()
 
-# Create a screenshot region based on the window coordinates
-screenshot_region = (x, y, width, height)
-
-# Create a window to display the captured image
-cv2.namedWindow("Window Capture")
+# Create a window to display the camera feed
+cv2.namedWindow("Camera Feed")
 
 while True:
-    # Capture the screenshot of the specified window region
-    screenshot = pyautogui.screenshot(region=screenshot_region)
+    # Read frame from the camera
+    ret, frame = cap.read()
 
-    # Convert the screenshot to OpenCV format
-    frame = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
+    # Check if the frame was read successfully
+    if not ret:
+        print("Error reading frame from video capture.")
+        break
 
-    # Display the captured image in the window
-    cv2.imshow("Window Capture", frame)
+    # Display the frame in the window
+    cv2.imshow("Camera Feed", frame)
 
-    # Check for key press to save the screenshot
+    # Check for key press to take a screenshot
     if cv2.waitKey(1) & 0xFF == ord('s'):
         # Construct the file path for saving the screenshot
         file_path = os.path.join(folder_path, "screenshot.png")
-        
+
         # Save the screenshot
-        screenshot.save(file_path)
+        cv2.imwrite(file_path, frame)
         print("Screenshot saved at:", file_path)
         break
 
-# Close the window
+# Release the capture and close the window
+cap.release()
 cv2.destroyAllWindows()
